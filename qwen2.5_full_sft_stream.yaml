@@ -1,0 +1,50 @@
+### model
+model_name_or_path: 'path_to_models/Qwen2.5-7B-Instruct' #'/tmp/saves/Qwen2.5-7b/full_v2/Turbo_sft_1_pubmedqa_emanual_expertqa_glaverag_p1_finqa_msmarco/checkpoint-726' #'/home/w84373270/models/Qwen2.5-7B-Instruct/' #'/tmp/saves/Qwen2.5-7b/full/turborag_sft_3_full_metric_pubmedqa_emanual_expertqa_glaveragp1_finqa_msmarco/checkpoint-1089' # '/tmp/saves/Qwen2.5-7b/full/sft_1_MSmarco_FinQA/checkpoint-200' #  '/tmp/saves/Qwen2.5-7b/full/sft'# '/home/models/Qwen2.5-7B-Instruct' #meta-llama/Meta-Llama-3-8B-Instruct
+trust_remote_code: true
+
+### method
+stage: sft
+do_train: true
+finetuning_type: full
+deepspeed: examples/deepspeed/ds_z3_offload_activation_checkpointing_config.json  # choices: [ds_z0_config.json, ds_z2_config.json, ds_z3_config.json]
+
+### dataset
+dataset: identity # turborag_glaverag #, turborag_emanual, turborag_finqa, turborag_msmarco, turborag_expertqa, turborag_pubmedqa, turborag_baidubaike, turborag_dureader, turborag_baidusti, turborag_bioasq, turborag_hagrid, turborag_tatqa, #turborag_techqa, turborag_cuad, turborag_covidqa (too long)
+template: qwen
+cutoff_len: 5120 #8196 #2048
+#max_samples: 200000
+max_steps: 8938 # num_examples * num_epochs // (per_device_train_batch_size * gradient_accumulation_steps * num_gpus)
+overwrite_cache: true
+#preprocessing_num_workers: 16 # remove for streaming mode
+buffer_size: 128
+preprocessing_batch_size: 128
+streaming: true
+accelerator_config:
+  dispatch_batches: false
+
+### output
+output_dir: /training_output/test #/tmp/saves/Qwen2.5-7b/full/sft_1_MSmarco_FinQA/ #saves/Qwen2.5-7b/full/sft
+logging_steps: 2 #10
+save_steps: 2234
+plot_loss: true
+overwrite_output_dir: true
+save_only_model: true
+
+
+### train
+per_device_train_batch_size: 2
+#global_batch: 16
+gradient_accumulation_steps: 4 #2
+learning_rate: 1.0e-5
+num_train_epochs: 4.0 # 4.0 #3.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+bf16: true
+ddp_timeout: 180000000
+#train_on_prompt: True
+
+### eval
+# val_size: 0.1
+# per_device_eval_batch_size: 1
+# eval_strategy: steps
+# eval_steps: 500
